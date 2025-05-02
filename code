@@ -1,0 +1,37 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+# Parameters from Aave example
+base_rate = 0.02          # 2%
+optimal_util = 0.80       # 80%
+slope_1 = 0.10            # 10%
+slope_2 = 0.30            # 30%
+
+# Utilization range from 0% to 100%
+U = np.linspace(0, 1, 100)
+borrow_rate = np.where(
+    U <= optimal_util,
+    base_rate + slope_1 * U,
+    base_rate + slope_1 * optimal_util + slope_2 * (U - optimal_util)
+)
+
+# Create DataFrame for exporting
+df = pd.DataFrame({
+    "Utilization Rate (%)": (U * 100).round(2),
+    "Borrow Rate (%)": (borrow_rate * 100).round(2)
+})
+
+# Plotting chart
+plt.figure(figsize=(8, 5))
+plt.plot(U * 100, borrow_rate * 100, label="Borrow Rate (Kinked Model)")
+plt.axvline(optimal_util * 100, color='red', linestyle='--', label="Optimal Utilization (80%)")
+plt.title("Borrow Rate vs Utilization Rate (Aave-style Kinked Model)", fontsize=14)
+plt.xlabel("Utilization Rate (%)", fontsize=12)
+plt.ylabel("Borrow Rate (%)", fontsize=12)
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+import ace_tools as tools; tools.display_dataframe_to_user(name="Borrow Rate Simulation (Aave Style)", dataframe=df)
